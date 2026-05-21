@@ -9,6 +9,18 @@ function resize() {
 window.addEventListener("resize", resize);
 resize();
 
+function updatePhysicsScale() {
+    bird.gravity = window.innerHeight * 0.0009;
+    bird.jump = -window.innerHeight * 0.018;
+}
+
+window.addEventListener("resize", () => {
+    resize();
+    updatePhysicsScale();
+});
+
+updatePhysicsScale();
+
 // ---------- GAME STATE ----------
 let state = "start"; // start | play | over
 
@@ -20,8 +32,11 @@ let bird = {
     x: 80,
     y: 200,
     v: 0,
-    g: 0.5,
-    jump: -8,
+
+    // 🔥 scale physics to screen height
+    gravity: window.innerHeight * 0.0009,
+    jump: -window.innerHeight * 0.018,
+
     r: 18
 };
 
@@ -101,6 +116,13 @@ function update() {
     if (bird.y > canvas.height || bird.y < 0) {
         state = "over";
     }
+
+    bird.v += bird.g;
+
+// 🔥 LIMIT FALL SPEED (VERY IMPORTANT)
+if (bird.v > 10) bird.v = 10;
+
+bird.y += bird.v;
 }
 
 // ---------- DRAW ----------
