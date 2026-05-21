@@ -1,34 +1,39 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-// FIXED RESPONSIVE CANVAS
+// ---------- RESPONSIVE CANVAS ----------
 function resize() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 }
 window.addEventListener("resize", resize);
+window.addEventListener("orientationchange", resize);
 resize();
 
+// ---------- GAME STATE ----------
 let gameStarted = false;
 let gameOver = false;
 
 let score = 0;
 let frame = 0;
 
+// ---------- BIRD ----------
 let bird = {
     x: 100,
     y: 200,
     velocity: 0,
-    gravity: 0.45,
-    jump: -7,
+    gravity: 0.5,
+    jump: -8,
     size: 18
 };
 
+// ---------- PIPES ----------
 let pipes = [];
 
+// ---------- PIPE CREATION ----------
 function createPipe() {
-    let gap = 180; // easier
-    let top = Math.random() * 200 + 100;
+    let gap = 170; // easier start
+    let top = Math.random() * (canvas.height / 2) + 50;
 
     pipes.push({
         x: canvas.width,
@@ -39,29 +44,26 @@ function createPipe() {
     });
 }
 
+// ---------- INPUT (FIXED FOR MOBILE + DESKTOP) ----------
 function jump() {
     if (gameOver) return;
 
     if (!gameStarted) {
         gameStarted = true;
-        hideStartText(); // ✅ FIXED
-        loop();
+        document.getElementById("startText").classList.add("hidden");
     }
 
     bird.velocity = bird.jump;
 }
 
+// ONE INPUT SYSTEM (NO BUGS)
+document.addEventListener("pointerdown", jump);
 
 document.addEventListener("keydown", (e) => {
     if (e.code === "Space") jump();
 });
 
-document.addEventListener("touchstart", () => {
-    jump();
-});
-
-canvas.addEventListener("click", jump);
-
+// ---------- GAME OVER ----------
 function endGame() {
     if (gameOver) return;
 
@@ -71,6 +73,7 @@ function endGame() {
     document.getElementById("finalScore").innerText = "Score: " + score;
 }
 
+// ---------- RESTART ----------
 function restartGame() {
     bird.y = 200;
     bird.velocity = 0;
@@ -79,33 +82,37 @@ function restartGame() {
     score = 0;
     frame = 0;
 
-    gameOver = false;
     gameStarted = false;
+    gameOver = false;
 
     document.getElementById("gameOverScreen").style.display = "none";
-    document.getElementById("startText").style.display = "block";
+    document.getElementById("startText").classList.remove("hidden");
 }
 
+// ---------- UPDATE ----------
 function update() {
     frame++;
 
+    // bird physics
     bird.velocity += bird.gravity;
     bird.y += bird.velocity;
 
-    if (frame % 110 === 0) {
+    // pipes spawn
+    if (frame % 100 === 0) {
         createPipe();
     }
 
+    // move pipes
     pipes.forEach(pipe => {
-        pipe.x -= 2.5;
+        pipe.x -= 3;
 
-        // FIXED SCORE LOGIC
+        // score fix (only once)
         if (!pipe.passed && pipe.x + pipe.width < bird.x) {
             score++;
             pipe.passed = true;
         }
 
-        // COLLISION
+        // collision
         if (
             bird.x + bird.size > pipe.x &&
             bird.x - bird.size < pipe.x + pipe.width &&
@@ -116,18 +123,17 @@ function update() {
         }
     });
 
-    // REMOVE OLD PIPES
+    // remove old pipes
     pipes = pipes.filter(p => p.x + p.width > 0);
 
-    // BOUNDS
+    // bounds
     if (bird.y > canvas.height || bird.y < 0) {
         endGame();
     }
 }
 
+// ---------- DRAW ----------
 function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
     // background
     ctx.fillStyle = "#70c5ce";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -145,20 +151,20 @@ function draw() {
     ctx.arc(bird.x, bird.y, bird.size, 0, Math.PI * 2);
     ctx.fill();
 
-    // score (FIXED POSITION)
+    // score UI
     document.getElementById("scoreText").innerText = score;
 }
 
+// ---------- MAIN LOOP (MOBILE SAFE) ----------
 function loop() {
-    if (gameOver) return;
+    requestAnimationFrame(loop);
+
+    if (!gameStarted || gameOver) return;
 
     update();
     draw();
-
-    requestAnimationFrame(loop);
 }
 
-ctx.font = "20px Arial";
-ctx.fillStyle = "white";
-ctx.fillText("Tap or Press Space to Start", canvas.width / 2 - 120, canvas.height / 2);
-
+// ---------- START ----------
+draw(); // show initial frame
+loop();

@@ -44,3 +44,8 @@ canvas {
 #startText.hidden {
     display: none;
 }
+
+body {
+    overflow: hidden;
+    touch-action: none;
+}
