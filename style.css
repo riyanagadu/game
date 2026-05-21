@@ -1,15 +1,27 @@
 body {
     margin: 0;
     overflow: hidden;
+    background: #70c5ce;
     font-family: Arial;
-    background: linear-gradient(#70c5ce, #cfefff);
-    text-align: center;
 }
 
 canvas {
     display: block;
     margin: auto;
-    background: transparent;
+}
+
+#ui {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    top: 20px;
+    color: white;
+}
+
+#scoreText {
+    font-size: 40px;
+    margin: 0;
+    text-shadow: 2px 2px black;
 }
 
 #gameOverScreen {
@@ -20,6 +32,5 @@ canvas {
     transform: translate(-50%, -50%);
     background: white;
     padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    border-radius: 10px;
 }
