@@ -83,9 +83,9 @@ document.addEventListener("keydown", (e) => {
 });
 
 document.addEventListener("touchstart", (e) => {
-    e.preventDefault();
+    if (gameOver) return;
     jump();
-}, { passive: false });
+});
 
 canvas.addEventListener("click", jump);
 
@@ -110,12 +110,18 @@ function restartGame() {
     frame = 0;
 
     gameOver = false;
-    gameStarted = false;
+    gameStarted = true;
 
     document.getElementById("gameOverScreen").style.display = "none";
 
-    drawStartScreen();
+    loop();
 }
+
+document.addEventListener("touchend", () => {
+    if (gameOver) {
+        restartGame();
+    }
+});
 
 // ---------- DRAW BIRD ----------
 function drawBird() {

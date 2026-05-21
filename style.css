@@ -38,3 +38,7 @@ canvas {
 canvas {
     touch-action: none;
 }
+
+button {
+    touch-action: manipulation;
+}
