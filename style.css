@@ -1,0 +1,25 @@
+body {
+    text-align: center;
+    background: skyblue;
+    font-family: Arial;
+}
+
+canvas {
+    background: #70c5ce;
+    display: block;
+    margin: auto;
+    border: 2px solid black;
+}
+
+/* Game over screen */
+#gameOverScreen {
+    display: none;
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px black;
+}
