@@ -44,12 +44,13 @@ function jump() {
 
     if (!gameStarted) {
         gameStarted = true;
-        document.getElementById("startText").style.display = "none";
+        hideStartText(); // ✅ FIXED
         loop();
     }
 
     bird.velocity = bird.jump;
 }
+
 
 document.addEventListener("keydown", (e) => {
     if (e.code === "Space") jump();

@@ -40,3 +40,7 @@ canvas {
     padding: 20px;
     border-radius: 10px;
 }
+
+#startText.hidden {
+    display: none;
+}
