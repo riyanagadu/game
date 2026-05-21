@@ -34,3 +34,7 @@ canvas {
     padding: 20px;
     border-radius: 10px;
 }
+
+canvas {
+    touch-action: none;
+}
