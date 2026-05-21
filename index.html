@@ -2,18 +2,22 @@
 <html>
 <head>
     <title>Flappy Bird</title>
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
 <canvas id="gameCanvas"></canvas>
 
+<!-- UI overlay (SAFE - does NOT block clicks) -->
 <div id="ui">
-    <h1 id="startText">Tap / Press Space to Start</h1>
-    <h2 id="scoreText">0</h2>
+    <h1 id="startText">Tap or Press Space to Start</h1>
 </div>
 
+<!-- Game Over Screen -->
 <div id="gameOverScreen">
     <h2>Game Over</h2>
     <p id="finalScore"></p>

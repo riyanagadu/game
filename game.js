@@ -1,9 +1,7 @@
-window.onload = () => {
-
-// ---------- CANVAS ----------
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
+// ---------- SAFE RESIZE ----------
 function resize() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -12,8 +10,7 @@ window.addEventListener("resize", resize);
 resize();
 
 // ---------- GAME STATE ----------
-let started = false;
-let gameOver = false;
+let state = "start"; // start | play | over
 
 let score = 0;
 let frame = 0;
@@ -31,37 +28,46 @@ let bird = {
 // ---------- PIPES ----------
 let pipes = [];
 
-// ---------- INPUT (100% MOBILE SAFE) ----------
+// ---------- INPUT (ONLY ONE SYSTEM) ----------
 function flap() {
-    if (gameOver) return;
-
-    if (!started) {
-        started = true;
-        document.getElementById("startText").style.display = "none";
+    if (state === "start") {
+        state = "play";
         loop();
     }
 
-    bird.v = bird.jump;
+    if (state === "play") {
+        bird.v = bird.jump;
+    }
 }
 
-// ONLY ONE INPUT SYSTEM
+// BEST MOBILE INPUT (NO BUGS)
 document.addEventListener("pointerdown", flap);
 document.addEventListener("keydown", e => {
     if (e.code === "Space") flap();
 });
 
 // ---------- PIPE ----------
-function addPipe() {
+function spawnPipe() {
     let gap = 170;
-    let top = Math.random() * (canvas.height / 2) + 50;
+    let top = Math.random() * (canvas.height / 2) + 60;
 
     pipes.push({
         x: canvas.width,
-        top: top,
+        top,
         bottom: top + gap,
         w: 60,
         passed: false
     });
+}
+
+// ---------- RESET ----------
+function resetGame() {
+    bird.y = 200;
+    bird.v = 0;
+    pipes = [];
+    score = 0;
+    frame = 0;
+    state = "start";
 }
 
 // ---------- UPDATE ----------
@@ -71,7 +77,7 @@ function update() {
     bird.v += bird.g;
     bird.y += bird.v;
 
-    if (frame % 110 === 0) addPipe();
+    if (frame % 100 === 0) spawnPipe();
 
     pipes.forEach(p => {
         p.x -= 2.5;
@@ -81,20 +87,19 @@ function update() {
             p.passed = true;
         }
 
-        // collision
         if (
             bird.x + bird.r > p.x &&
             bird.x - bird.r < p.x + p.w &&
             (bird.y - bird.r < p.top || bird.y + bird.r > p.bottom)
         ) {
-            end();
+            state = "over";
         }
     });
 
     pipes = pipes.filter(p => p.x + p.w > 0);
 
     if (bird.y > canvas.height || bird.y < 0) {
-        end();
+        state = "over";
     }
 }
 
@@ -116,12 +121,35 @@ function draw() {
     ctx.arc(bird.x, bird.y, bird.r, 0, Math.PI * 2);
     ctx.fill();
 
-    document.getElementById("scoreText").innerText = score;
+    // score
+    ctx.fillStyle = "white";
+    ctx.font = "30px Arial";
+    ctx.fillText(score, canvas.width / 2, 50);
+
+    // start screen
+    if (state === "start") {
+        ctx.fillStyle = "white";
+        ctx.font = "20px Arial";
+        ctx.fillText("Tap or Press Space to Start", canvas.width / 2 - 120, canvas.height / 2);
+    }
+
+    // game over screen
+    if (state === "over") {
+        ctx.fillStyle = "white";
+        ctx.font = "30px Arial";
+        ctx.fillText("Game Over", canvas.width / 2 - 70, canvas.height / 2);
+        ctx.fillText("Score: " + score, canvas.width / 2 - 60, canvas.height / 2 + 40);
+        ctx.fillText("Tap to Restart", canvas.width / 2 - 90, canvas.height / 2 + 80);
+    }
 }
 
-// ---------- GAME LOOP ----------
+// ---------- LOOP ----------
 function loop() {
-    if (!started || gameOver) return;
+    if (state !== "play") {
+        draw();
+        requestAnimationFrame(loop);
+        return;
+    }
 
     update();
     draw();
@@ -129,33 +157,13 @@ function loop() {
     requestAnimationFrame(loop);
 }
 
-// ---------- END GAME ----------
-function end() {
-    if (gameOver) return;
+// ---------- RESTART ON TAP ----------
+document.addEventListener("pointerdown", () => {
+    if (state === "over") {
+        resetGame();
+        state = "play";
+    }
+});
 
-    gameOver = true;
-
-    document.getElementById("gameOverScreen").style.display = "block";
-    document.getElementById("finalScore").innerText = score;
-}
-
-// ---------- RESTART ----------
-window.restartGame = function () {
-    bird.y = 200;
-    bird.v = 0;
-
-    pipes = [];
-    score = 0;
-    frame = 0;
-
-    started = false;
-    gameOver = false;
-
-    document.getElementById("gameOverScreen").style.display = "none";
-    document.getElementById("startText").style.display = "block";
-
-    draw();
-};
-
-draw(); // initial frame
-};
+// ---------- START ----------
+loop();

@@ -1,35 +1,36 @@
-body {
+html, body {
     margin: 0;
+    padding: 0;
     overflow: hidden;
-    font-family: Arial;
-    background: #70c5ce;
+    height: 100%;
+    width: 100%;
+    touch-action: none; /* 🔥 stops mobile scrolling freezing game */
 }
 
 canvas {
     display: block;
-    width: 100vw;
-    height: 100vh;
-    touch-action: manipulation;
+    position: fixed;
+    top: 0;
+    left: 0;
 }
 
+/* UI text overlay (does NOT block canvas) */
 #ui {
     position: absolute;
     width: 100%;
     text-align: center;
     top: 20px;
+    z-index: 10;
+    pointer-events: none; /* 🔥 CRITICAL FIX */
     color: white;
 }
 
+/* Start text */
 #startText {
-    margin: 0;
-    font-size: 20px;
+    font-size: 18px;
 }
 
-#scoreText {
-    font-size: 40px;
-    margin: 0;
-}
-
+/* Game Over screen */
 #gameOverScreen {
     display: none;
     position: absolute;
@@ -39,13 +40,5 @@ canvas {
     background: white;
     padding: 20px;
     border-radius: 10px;
-}
-
-#startText.hidden {
-    display: none;
-}
-
-body {
-    overflow: hidden;
-    touch-action: none;
+    z-index: 20;
 }
