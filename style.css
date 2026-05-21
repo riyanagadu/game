@@ -1,17 +1,17 @@
 body {
-    text-align: center;
-    background: skyblue;
+    margin: 0;
+    overflow: hidden;
     font-family: Arial;
+    background: linear-gradient(#70c5ce, #cfefff);
+    text-align: center;
 }
 
 canvas {
-    background: #70c5ce;
     display: block;
     margin: auto;
-    border: 2px solid black;
+    background: transparent;
 }
 
-/* Game over screen */
 #gameOverScreen {
     display: none;
     position: absolute;
@@ -20,6 +20,6 @@ canvas {
     transform: translate(-50%, -50%);
     background: white;
     padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px black;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
 }

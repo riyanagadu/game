@@ -2,134 +2,170 @@ const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
 canvas.width = 400;
-canvas.height = 500;
+canvas.height = 600;
 
-// Game state
+// GAME STATE
 let gameRunning = true;
-
-// Bird
-let bird = {
-    x: 80,
-    y: 150,
-    width: 20,
-    height: 20,
-    velocity: 0,
-    gravity: 0.5,
-    jump: -8,
-    rotation: 0
-};
-
-// Pipes
-let pipes = [];
 let frame = 0;
 let score = 0;
 
-// Controls
-document.addEventListener("keydown", () => {
-    if (gameRunning) {
-        bird.velocity = bird.jump;
-    }
-});
+// BIRD (now looks like a bird using shapes)
+let bird = {
+    x: 80,
+    y: 200,
+    velocity: 0,
+    gravity: 0.5,
+    jump: -8
+};
 
-canvas.addEventListener("click", () => {
-    if (gameRunning) {
-        bird.velocity = bird.jump;
-    }
-});
+// PIPES
+let pipes = [];
 
-// Pipe generator
+// CLOUDS (background animation)
+let clouds = [
+    { x: 50, y: 80 },
+    { x: 200, y: 120 },
+    { x: 350, y: 60 }
+];
+
+// CONTROLS
+document.addEventListener("keydown", jump);
+canvas.addEventListener("click", jump);
+
+function jump() {
+    if (gameRunning) bird.velocity = bird.jump;
+}
+
+// PIPE CREATION
 function createPipe() {
-    let gap = 130;
+    let gap = 140;
     let topHeight = Math.random() * 250 + 50;
 
     pipes.push({
         x: 400,
         top: topHeight,
         bottom: topHeight + gap,
-        width: 50,
+        width: 60,
         passed: false
     });
 }
 
-// Draw bird (with rotation)
+// DRAW CLOUDS (background animation)
+function drawClouds() {
+    ctx.fillStyle = "rgba(255,255,255,0.8)";
+
+    clouds.forEach(c => {
+        ctx.beginPath();
+        ctx.arc(c.x, c.y, 20, 0, Math.PI * 2);
+        ctx.arc(c.x + 20, c.y + 10, 25, 0, Math.PI * 2);
+        ctx.arc(c.x - 20, c.y + 10, 25, 0, Math.PI * 2);
+        ctx.fill();
+
+        c.x -= 0.5;
+
+        if (c.x < -50) {
+            c.x = 450;
+        }
+    });
+}
+
+// DRAW BIRD (now looks like Flappy Bird style shape)
 function drawBird() {
     ctx.save();
-
     ctx.translate(bird.x, bird.y);
-    ctx.rotate(bird.rotation);
 
+    // tilt effect
+    let angle = Math.min(Math.max(bird.velocity * 0.1, -0.5), 1.2);
+    ctx.rotate(angle);
+
+    // body
     ctx.fillStyle = "yellow";
-    ctx.fillRect(-bird.width / 2, -bird.height / 2, bird.width, bird.height);
+    ctx.beginPath();
+    ctx.arc(0, 0, 15, 0, Math.PI * 2);
+    ctx.fill();
+
+    // wing
+    ctx.fillStyle = "orange";
+    ctx.beginPath();
+    ctx.arc(-5, 5, 8, 0, Math.PI * 2);
+    ctx.fill();
+
+    // eye
+    ctx.fillStyle = "white";
+    ctx.beginPath();
+    ctx.arc(5, -5, 4, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = "black";
+    ctx.beginPath();
+    ctx.arc(6, -5, 2, 0, Math.PI * 2);
+    ctx.fill();
 
     ctx.restore();
 }
 
-// Draw pipes
+// DRAW PIPES (better visual style)
 function drawPipes() {
-    ctx.fillStyle = "green";
-
     pipes.forEach(pipe => {
+        // top pipe
+        ctx.fillStyle = "#2ecc71";
         ctx.fillRect(pipe.x, 0, pipe.width, pipe.top);
+
+        // bottom pipe
         ctx.fillRect(pipe.x, pipe.bottom, pipe.width, canvas.height);
     });
 }
 
-// Update game logic
+// UPDATE GAME LOGIC
 function update() {
     frame++;
 
-    // Bird physics
+    // physics
     bird.velocity += bird.gravity;
     bird.y += bird.velocity;
 
-    // Bird rotation effect
-    bird.rotation = Math.min(Math.max(bird.velocity * 0.1, -0.5), 1.2);
+    // pipes spawn
+    if (frame % 90 === 0) createPipe();
 
-    // Create pipes
-    if (frame % 90 === 0) {
-        createPipe();
-    }
-
-    // Move pipes
     pipes.forEach(pipe => {
         pipe.x -= 2;
 
-        // Score when passing pipe
-        if (!pipe.passed && pipe.x + pipe.width < bird.x) {
+        // score
+        if (!pipe.passed && pipe.x < bird.x) {
             score++;
             pipe.passed = true;
         }
 
-        // Collision
+        // collision
         if (
-            bird.x + bird.width / 2 > pipe.x &&
-            bird.x - bird.width / 2 < pipe.x + pipe.width &&
-            (bird.y - bird.height / 2 < pipe.top ||
-             bird.y + bird.height / 2 > pipe.bottom)
+            bird.x > pipe.x &&
+            bird.x < pipe.x + pipe.width &&
+            (bird.y < pipe.top || bird.y > pipe.bottom)
         ) {
             endGame();
         }
     });
 
-    // Ground / ceiling
+    // boundaries
     if (bird.y > canvas.height || bird.y < 0) {
         endGame();
     }
 }
 
-// Draw everything
+// DRAW EVERYTHING
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    drawBird();
+    drawClouds();
     drawPipes();
+    drawBird();
 
     ctx.fillStyle = "black";
     ctx.font = "20px Arial";
     ctx.fillText("Score: " + score, 10, 30);
 }
 
-// Game loop
+// GAME LOOP
 function loop() {
     if (gameRunning) {
         update();
@@ -138,7 +174,7 @@ function loop() {
     }
 }
 
-// Game over
+// GAME OVER
 function endGame() {
     gameRunning = false;
 
@@ -146,9 +182,9 @@ function endGame() {
     document.getElementById("finalScore").innerText = "Score: " + score;
 }
 
-// Restart game
+// RESTART
 function restartGame() {
-    bird.y = 150;
+    bird.y = 200;
     bird.velocity = 0;
     pipes = [];
     score = 0;
@@ -160,5 +196,5 @@ function restartGame() {
     loop();
 }
 
-// Start game
+// START GAME
 loop();
