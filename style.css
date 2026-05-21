@@ -1,13 +1,15 @@
 body {
     margin: 0;
     overflow: hidden;
-    background: #70c5ce;
     font-family: Arial;
+    background: #70c5ce;
 }
 
 canvas {
     display: block;
-    margin: auto;
+    width: 100vw;
+    height: 100vh;
+    touch-action: manipulation;
 }
 
 #ui {
@@ -18,10 +20,14 @@ canvas {
     color: white;
 }
 
+#startText {
+    margin: 0;
+    font-size: 20px;
+}
+
 #scoreText {
     font-size: 40px;
     margin: 0;
-    text-shadow: 2px 2px black;
 }
 
 #gameOverScreen {
@@ -33,12 +39,4 @@ canvas {
     background: white;
     padding: 20px;
     border-radius: 10px;
-}
-
-canvas {
-    touch-action: none;
-}
-
-button {
-    touch-action: manipulation;
 }
