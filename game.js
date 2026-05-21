@@ -94,7 +94,6 @@ function endGame() {
     if (gameOver) return;
 
     gameOver = true;
-    hitSound();
 
     document.getElementById("gameOverScreen").style.display = "block";
     document.getElementById("finalScore").innerText = "Score: " + score;
@@ -114,7 +113,8 @@ function restartGame() {
 
     document.getElementById("gameOverScreen").style.display = "none";
 
-    loop();
+    // 🔥 IMPORTANT: restart loop cleanly
+    requestAnimationFrame(loop);
 }
 
 document.addEventListener("touchend", () => {
@@ -238,13 +238,13 @@ function draw() {
 
 // ---------- LOOP ----------
 function loop() {
-    if (gameOver) return;
-
-    update();
-    draw();
-
-    requestAnimationFrame(loop);
+    if (!gameOver) {
+        update();
+        draw();
+        requestAnimationFrame(loop);
+    }
 }
+
 
 // ---------- START SCREEN ----------
 function drawStartScreen() {
